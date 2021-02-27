@@ -1,0 +1,88 @@
+# https://taskfile.dev
+
+version: "2"
+
+vars:
+
+env:
+tasks:
+  default:
+    desc: Executes all the tests then build the binary.
+    cmds:
+      - task: test
+      - task: build
+
+  test:
+    desc: Run all the go tests.
+    cmds:
+      - gofmt -w .
+      - go test ./... -short -count=1
+
+  test-verbose:
+    desc: Run all the go tests in verbose mode.
+    cmds:
+      - gofmt -w .
+      - go test ./... -v -count=1 
+
+  test-single:
+    desc: Run all the go tests in verbose mode from a single test file.
+    cmds:
+      - gofmt -w .
+      - go test ./... -run={{.CASE}} -v -count=1 
+
+  coverage:
+    desc: Open test coverage in browser
+    cmds:
+      - go test -coverprofile=c.out -coverpkg=./... -covermode=atomic ./...
+      - go tool cover -html=c.out
+
+  lint-display:
+    desc: Call gofmt, go vet and go lint
+    cmds:
+      - test -z "$(find -path './vendor' -prune -false -o -name '*.go' | xargs gofmt -l -d)"
+      - go vet ./...
+      - golangci-lint run
+
+  lint:
+    desc: Test gofmt, go vet and go lint
+    cmds:
+      - test -z "$(find -path './vendor' -prune -false -o -name '*.go' | xargs gofmt -l)"
+      - go vet ./...
+      - golangci-lint run
+
+  clean:
+    desc: Clean temporary files and folders
+    cmds:
+      - rm c.out
+
+  # Docker test environment related tasks
+  dc-up:
+    desc: Start OOM containers
+    cmds:
+      - docker-compose up
+
+  dc-upd:
+    desc: Start OOM containers in the background
+    cmds:
+      - docker-compose up -d
+      - task:  dc-logsf
+
+  dc-stop:
+    desc: Stop OOM containers
+    cmds:
+      - docker-compose stop
+
+  dc-logs:
+    desc: Get all container logs
+    cmds:
+      - docker-compose logs
+
+  dc-logsf:
+    desc: Get all container logs and follow
+    cmds:
+      - docker-compose logs -f
+
+  dc-down:
+    desc: Clean up OOM containers
+    cmds:
+      - docker-compose down --volumes --remove-orphans

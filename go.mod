@@ -1,9 +1,11 @@
 module github.com/tombenke/axon-go-common
 
-go 1.13
+go 1.15
 
 require (
-	github.com/nats-io/nats-server/v2 v2.1.2 // indirect
-	github.com/nats-io/nats.go v1.9.1
-	golang.org/x/crypto v0.0.0-20200204104054-c9f3fb736b72 // indirect
+	github.com/nats-io/nats.go v1.10.0
+	github.com/nats-io/stan.go v0.8.3
+	github.com/sirupsen/logrus v1.8.0
+	github.com/stretchr/testify v1.7.0
+	gopkg.in/yaml.v2 v2.4.0
 )
