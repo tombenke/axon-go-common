@@ -30,6 +30,20 @@ tasks:
       - gofmt -w .
       - go test ./... -run={{.CASE}} -v -count=1 
 
+  test-cold:
+    desc: Start docker compose for testing, run tests then stop compose
+    cmds:
+      - gofmt -w .
+      - task: lint
+      - task: dc-upd
+      - go test ./...
+      - task: dc-down
+
+  setup:
+    desc: Install dependencies
+    cmds:
+      - sh -c "$(curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh)" -- -b $(go env GOPATH)/bin v1.36.0
+
   coverage:
     desc: Open test coverage in browser
     cmds:
@@ -65,7 +79,6 @@ tasks:
     desc: Start OOM containers in the background
     cmds:
       - docker-compose up -d
-      - task:  dc-logsf
 
   dc-stop:
     desc: Stop OOM containers
