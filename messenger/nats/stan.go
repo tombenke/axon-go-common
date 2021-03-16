@@ -7,18 +7,27 @@ import (
 
 // PublishDurable will publish to the cluster into the `channel` and wait for an ACK.
 func (m connections) PublishDurable(channel string, data []byte) error {
+	if m.natsOnly {
+		panic("Called PublishDurable in NATS_ONLY mode")
+	}
 	return m.sc.Publish(channel, data)
 }
 
 // PublishAsyncDurable will publish to the cluster and asynchronously process
 // the ACK or error state. It will return the GUID for the message being sent.
 func (m connections) PublishAsyncDurable(channel string, data []byte, ackHandler messenger.AckHandler) (string, error) {
+	if m.natsOnly {
+		panic("Called PublishAsyncDurable in NATS_ONLY mode")
+	}
 	return m.sc.PublishAsync(channel, data, stan.AckHandler(ackHandler))
 }
 
 // Subscribe to the durable `channel`, and call `cb` with the received content.
 // Automatically acknowledges to the channel the take-over of the message.
 func (m connections) SubscribeDurable(channel string, cb func([]byte)) {
+	if m.natsOnly {
+		panic("Called SubscribeDurable in NATS_ONLY mode")
+	}
 	_, err := m.sc.Subscribe(channel, func(msg *stan.Msg) {
 		m.logger.Debugf("Received message from '%s'\n", channel)
 		cb(msg.Data)
@@ -32,6 +41,9 @@ func (m connections) SubscribeDurable(channel string, cb func([]byte)) {
 // The second argument of the `cb` callback is the acknowledge callback function,
 // that has to be called by the consumer of the content.
 func (m connections) SubscribeDurableWithAck(channel string, cb func([]byte, func() error)) {
+	if m.natsOnly {
+		panic("Called SubscribeDurableWithAck in NATS_ONLY mode")
+	}
 	_, err := m.sc.Subscribe(channel, func(msg *stan.Msg) {
 		m.logger.Debugf("Received message from '%s'\n", channel)
 		cb(msg.Data, func() error {
@@ -53,5 +65,8 @@ func (m connections) SubscribeDurableWithAck(channel string, cb func([]byte, fun
 // position is to receive new messages only (messages published after the subscription is
 // registered in the cluster).
 func (m connections) SubscribeQueueGroupDurable(channel, qgroup string, cb stan.MsgHandler, opts ...stan.SubscriptionOption) (stan.Subscription, error) {
+	if m.natsOnly {
+		panic("Called SubscribeQueueGroupDurable in NATS_ONLY mode")
+	}
 	return m.sc.QueueSubscribe(channel, qgroup, cb, opts...)
 }

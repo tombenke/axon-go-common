@@ -37,6 +37,10 @@ const (
 	messagingUserCredsEnvVar  = "MESSAGING_CREDENTIALS"
 	defaultMessagingUserCreds = ""
 
+	messagingClusterIDHelp    = "Cluster ID of messaging"
+	messagingClusterIDEnvVar  = "MESSAGING_CLUSTER_ID"
+	defaultMessagingClusterID = ""
+
 	inputsHelp  = "Input. Format: <name>[|<channel>[|<type>|<representation>|<default>]]"
 	outputsHelp = "Output. Format: <name>[|<channel>[|<type>|<representation>]]"
 )
@@ -56,6 +60,7 @@ func GetDefaultFlagSet(defaultNodeName string, config *Node) *flag.FlagSet {
 
 	fs.StringVar(&(*config).Messenger.Urls, "u", GetEnvWithDefault(messagingUrlsEnvVar, (*config).Messenger.Urls), messagingUrlsHelp)
 	fs.StringVar(&(*config).Messenger.Urls, "messaging-urls", GetEnvWithDefault(messagingUrlsEnvVar, (*config).Messenger.Urls), messagingUrlsHelp)
+	fs.StringVar(&(*config).Messenger.ClusterID, "messaging-cluster-id", GetEnvWithDefault(messagingClusterIDEnvVar, (*config).Messenger.ClusterID), messagingClusterIDHelp)
 
 	fs.StringVar(&(*config).Messenger.UserCreds, "c", GetEnvWithDefault(messagingUserCredsEnvVar, (*config).Messenger.UserCreds), messagingUserCredsHelp)
 	fs.StringVar(&(*config).Messenger.UserCreds, "creds", GetEnvWithDefault(messagingUserCredsEnvVar, (*config).Messenger.UserCreds), messagingUserCredsHelp)

@@ -18,9 +18,9 @@ const (
 	// DefaultClientName holds the default value of the client name config parameter for the NATS connection
 	DefaultClientName = "messenger"
 	// DefaultNatsClusterID is the default config parameter value for connecting to the NATS cluster
-	DefaultNatsClusterID = "test-cluster"
+	DefaultNatsClusterID = ""
 	// DefaultNatsClientID is the default config parameter value for the Messenger client that connects to the NATS cluster
-	DefaultNatsClientID = "test-client"
+	DefaultNatsClientID = ""
 )
 
 // DefaultNatsURL is the default URL of the NATS messaging server
@@ -29,9 +29,10 @@ func DefaultNatsURL() string {
 }
 
 type connections struct {
-	nc     *nats.Conn
-	sc     stan.Conn
-	logger *logrus.Logger
+	natsOnly bool
+	nc       *nats.Conn
+	sc       stan.Conn
+	logger   *logrus.Logger
 }
 
 // NewMessenger creates a new Messenger instance using the configuration parameters
@@ -40,9 +41,20 @@ func NewMessenger(config messenger.Config) messenger.Messenger {
 	if err != nil {
 		config.Logger.Fatal(err)
 	}
+
+	if isNatsOnlyMode(config) {
+		m := connections{natsOnly: true, nc: nc, logger: config.Logger}
+		return m
+	}
+
 	sc := stanConnect(nc, config)
-	m := connections{nc, sc, config.Logger}
+	m := connections{natsOnly: false, nc: nc, sc: sc, logger: config.Logger}
 	return m
+}
+
+// isNatsOnlyMode returns true if the program uses messenger in NATS-only mode (e.g. no durable channels)
+func isNatsOnlyMode(config messenger.Config) bool {
+	return config.ClusterID == ""
 }
 
 // setupOptions extends the options array with default configuration parameters
@@ -97,8 +109,10 @@ func stanConnect(nc *nats.Conn, config messenger.Config) stan.Conn {
 
 // Close both the Streaming and the NATS connections
 func (s connections) Close() {
-	// Close the Streaming connection
-	s.sc.Close()
+	if !s.natsOnly {
+		// Close the Streaming connection
+		s.sc.Close()
+	}
 
 	// Close the NATS connection
 	s.nc.Close()

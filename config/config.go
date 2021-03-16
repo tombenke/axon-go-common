@@ -123,6 +123,7 @@ func GetDefaultNode() Node {
 		Messenger: messenger.Config{
 			Urls:      defaultMessagingURL,
 			UserCreds: defaultMessagingUserCreds,
+			ClusterID: defaultMessagingClusterID,
 		},
 		Name:           "anonymous",
 		Type:           "untyped",

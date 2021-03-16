@@ -12,7 +12,7 @@ type Config struct {
 	Urls       string         `yaml:"urls"`
 	UserCreds  string         `yaml:"credentials"`
 	ClientName string         `yaml:"-"`
-	ClusterID  string         `yaml:"-"`
+	ClusterID  string         `yaml:"clusterID"`
 	ClientID   string         `yaml:"-"`
 	Logger     *logrus.Logger `yaml:"-"`
 }

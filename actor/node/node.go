@@ -68,7 +68,7 @@ func NewNode(config config.Node, procFun func(processor.Context) error) Node {
 	node.config.Messenger.Logger = log.Logger
 	node.config.Messenger.ClientID = node.name
 	node.config.Messenger.ClientName = node.name
-	node.config.Messenger.ClusterID = "test-cluster"
+	//node.config.Messenger.ClusterID = "test-cluster"
 	node.messenger = messengerImpl.NewMessenger(node.config.Messenger)
 
 	log.Logger.Debugf("Start '%s' actor node's internal components", node.config.Name)

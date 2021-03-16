@@ -12,8 +12,16 @@ var (
 		Urls:       DefaultNatsURL(),
 		UserCreds:  DefaultNatsUserCreds,
 		ClientName: DefaultClientName,
-		ClusterID:  DefaultNatsClusterID,
-		ClientID:   DefaultNatsClientID,
+		ClusterID:  "test-cluster",
+		ClientID:   DefaultClientName,
+		Logger:     log.Logger,
+	}
+	testConfigNatsOnly = messenger.Config{
+		Urls:       DefaultNatsURL(),
+		UserCreds:  DefaultNatsUserCreds,
+		ClientName: DefaultClientName,
+		ClusterID:  DefaultNatsClusterID, // should be: ""
+		ClientID:   DefaultNatsClientID,  // should be: ""
 		Logger:     log.Logger,
 	}
 )
