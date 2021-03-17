@@ -73,7 +73,7 @@ func NewNode(config config.Node, procFun func(processor.Context) error) Node {
 
 	log.Logger.Debugf("Start '%s' actor node's internal components", node.config.Name)
 	// Start the status component to communicate with the orchestrator
-	node.statusStoppedCh = status.Status(node.config.Name, node.doneStatusCh, node.wg, node.messenger, log.Logger)
+	node.statusStoppedCh = status.Status(node.config, node.doneStatusCh, node.wg, node.messenger, log.Logger)
 
 	// Start the core components of the Node
 	if node.config.Orchestration.Synchronization {

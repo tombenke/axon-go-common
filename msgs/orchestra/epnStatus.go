@@ -35,7 +35,7 @@ type EPNStatusBody struct {
 
 // Actor represents the status of one actor node
 type Actor struct {
-	Name         string
+	Node         StatusReportBody
 	ResponseTime time.Duration
 }
 

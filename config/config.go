@@ -32,17 +32,29 @@ type Node struct {
 	// Ports holds the I/O port definitions
 	Ports Ports `yaml:"ports"`
 
+	// Orchestration holds the configuration parameters for the node that determine how to
+	// use the orchestration features of the EPN.
 	Orchestration Orchestration `yaml:"orchestration"`
+
+	// SpecsURL holds an URL to the base-path of the detailed specification of the Node.
+	// This parameter is optional. If it is given it has to point to a valid URL of a content server
+	// which provides additional information  on the Node, e.g. README.md, symbol.svg, icon.svg, etc.
+	// These resources the axon dashboards and other frontends may use to enrich the user experience.
+	// The preferred approach is to provide a manifes file, such as `.axon.yml` that contains further
+	// information on the specification and other resources related to the specific node-type.
+	// May be the best practice to point to the VCS repository of the implementation of the node, or
+	// a CDN server, that provides the manifest file as well as the other resources.
+	SpecsURL string `yaml:"specsURL"`
 }
 
 // Ports structure is an aggregate that holds the I/O port definitions
 type Ports struct {
 	// Inputs is a list of input-type port descriptors
-
 	Inputs Inputs `yaml:"inputs"`
-	// Outputs is a list of output-type port descriptors
 
+	// Outputs is a list of output-type port descriptors
 	Outputs Outputs `yaml:"outputs"`
+
 	// Configure holds the properties that determine how the I/O port configuration properties
 	// might be changed, during the configuration process
 	Configure Configure `yaml:"configure"`
@@ -70,8 +82,8 @@ type Orchestration struct {
 	// Presence is a flag. If it is `true` the Node uses presence protocol, otherwise not.
 	Presence bool `yaml:"presence"`
 
-	// Synchronize is a flag. If it is `true` the Node is working in syncronized mode,
-	// otherwise it uses no synchronozation protocol.
+	// Synchronization is a flag. If it is `true` the Node is working in syncronized mode,
+	// otherwise it uses no synchronization protocol.
 	Synchronization bool `yaml:"synchronization"`
 
 	// Channel holds the names of the channels used by the presence and the synchronization protocols
@@ -174,6 +186,11 @@ func (n *Node) AddInputPort(portName string, portType string, representation str
 func (n *Node) AddOutputPort(portName string, portType string, representation string, channel string) {
 	output := Out{IO: IO{Name: portName, Channel: channel, Type: portType, Representation: representation}}
 	n.Ports.Outputs = append(n.Ports.Outputs, output)
+}
+
+// AddSpecsURL Add the URL of the specification of the node to the node's configuration.
+func (n *Node) AddSpecsURL(specsURL string) {
+	n.SpecsURL = specsURL
 }
 
 // MergeNodeConfigs returns with the resulting config parameters set of the Node

@@ -8,14 +8,18 @@ import (
 	"testing"
 )
 
+var (
+	testStatusReportBody = StatusReportBody{}
+)
+
 func TestStatusReportGetType(t *testing.T) {
-	assert.Equal(t, NewStatusReportMessage("Some text...").GetType(), StatusReportTypeName)
+	assert.Equal(t, NewStatusReportMessage(testStatusReportBody).GetType(), StatusReportTypeName)
 }
 
 func TestStatusReportMessage(t *testing.T) {
 	at := int64(1608732048980057025)
 	prec := common.TimePrecision("ns")
-	m := NewStatusReportMessageAt("Some text...", at, prec)
+	m := NewStatusReportMessageAt(testStatusReportBody, at, prec)
 	var n StatusReport
 	err := n.ParseJSON(m.JSON())
 	assert.Nil(t, err)
@@ -27,7 +31,7 @@ func TestStatusReportMessage(t *testing.T) {
 func TestStatusReportMessageCodec(t *testing.T) {
 	at := int64(1608732048980057025)
 	prec := common.TimePrecision("ns")
-	m := NewStatusReportMessageAt("Some text...", at, prec)
+	m := NewStatusReportMessageAt(testStatusReportBody, at, prec)
 	var n StatusReport
 	err := n.Decode(msgs.JSONRepresentation, m.Encode(msgs.JSONRepresentation))
 	assert.Nil(t, err)
@@ -37,7 +41,7 @@ func TestStatusReportMessageCodec(t *testing.T) {
 func TestStatusReportMessageCodecPanic(t *testing.T) {
 	at := int64(1608732048980057025)
 	prec := common.TimePrecision("ns")
-	m := NewStatusReportMessageAt("Some text...", at, prec)
+	m := NewStatusReportMessageAt(testStatusReportBody, at, prec)
 	var n StatusReport
 	func() {
 		defer func() {
