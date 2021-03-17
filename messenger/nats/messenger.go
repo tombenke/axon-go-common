@@ -103,7 +103,7 @@ func stanConnect(nc *nats.Conn, config messenger.Config) stan.Conn {
 	if err != nil {
 		config.Logger.Fatalf("Can't connect: %v.\nMake sure a NATS Streaming Server is running at: %s", err, config.Urls)
 	}
-	config.Logger.Infof("Connected to %s clusterID: [%s] clientID: [%s]\n", config.Urls, config.ClusterID, config.ClientID)
+	config.Logger.Debugf("Connected to %s clusterID: [%s] clientID: [%s]\n", config.Urls, config.ClusterID, config.ClientID)
 	return sc
 }
 
