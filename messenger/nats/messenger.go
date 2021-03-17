@@ -72,7 +72,7 @@ func setupDefaultConnOptions(opts []nats.Option, logger *logrus.Logger) []nats.O
 		logger.Errorf("disconnected: will attempt reconnects for %.0fm", totalWait.Minutes())
 	}))
 	opts = append(opts, nats.ReconnectHandler(func(nc *nats.Conn) {
-		logger.Infof("reconnected [%s]", nc.ConnectedUrl())
+		logger.Debugf("reconnected [%s]", nc.ConnectedUrl())
 	}))
 	opts = append(opts, nats.ClosedHandler(func(nc *nats.Conn) {
 		logger.Errorf("exiting: %v", nc.LastError())
