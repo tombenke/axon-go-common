@@ -5,8 +5,23 @@ package msgs
 type Representation string
 
 const (
-	// JSONRepresentation Representation enum value
+	// JSONRepresentation `application/json` Representation enum value
 	JSONRepresentation Representation = "application/json"
+
+	// XMLRepresentation `application/xml` Representation enum value
+	XMLRepresentation Representation = "application/xml"
+
+	// AvroRepresentation `application/avro` Representation enum value
+	AvroRepresentation Representation = "application/avro"
+
+	// AvroRepresentation `application/x-protobuf` Representation enum value
+	ProtobufRepresentation Representation = "application/x-protobuf"
+
+	// TextRepresentation `text/plain` Representation enum value
+	TextRepresentation Representation = "text/plain"
+
+	// CSVRepresentation `text/csv` Representation enum value
+	CSVRepresentation Representation = "text/csv"
 )
 
 // Codec interface declares the methods that Encodes and Decodes the message to and from `Representation` format.
