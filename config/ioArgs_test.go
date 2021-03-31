@@ -93,10 +93,10 @@ func TestParseOutArgs(t *testing.T) {
 
 func TestSetIn(t *testing.T) {
 	inputs := &Inputs{}
-	inputs.Set("name|channel|base/Bool|application/json|true")
-	inputs.Set("name2|channel2|base/Any|application/json|{}")
-	inputs.Set("name|channelx|base/Bytes|text/plain|") // Overwrites 'name' !!!!
-	inputs.Set(`name3|channel3|base/Float|application/json|{"Body":{"Data":42.}}`)
+	assert.Nil(t, inputs.Set("name|channel|base/Bool|application/json|true"))
+	assert.Nil(t, inputs.Set("name2|channel2|base/Any|application/json|{}"))
+	assert.Nil(t, inputs.Set("name|channelx|base/Bytes|text/plain|")) // Overwrites 'name' !!!!
+	assert.Nil(t, inputs.Set(`name3|channel3|base/Float|application/json|{"Body":{"Data":42.}}`))
 
 	expected := Inputs{
 		In{IO{"name", "base/Bytes", "text/plain", "channelx"}, ""},
@@ -108,10 +108,10 @@ func TestSetIn(t *testing.T) {
 
 func TestSetOut(t *testing.T) {
 	outputs := &Outputs{}
-	outputs.Set("name|channel|base/Bool|application/json")
-	outputs.Set("name2|channel2|base/Any|application/json")
-	outputs.Set("name|channelx|base/Bytes|text/plain") // Overwrites 'name' !!!!
-	outputs.Set("name3|channel3|base/Float|application/json")
+	assert.Nil(t, outputs.Set("name|channel|base/Bool|application/json"))
+	assert.Nil(t, outputs.Set("name2|channel2|base/Any|application/json"))
+	assert.Nil(t, outputs.Set("name|channelx|base/Bytes|text/plain")) // Overwrites 'name' !!!!
+	assert.Nil(t, outputs.Set("name3|channel3|base/Float|application/json"))
 
 	expected := Outputs{
 		Out{IO{"name", "base/Bytes", "text/plain", "channelx"}},
