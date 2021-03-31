@@ -24,7 +24,7 @@ func TestBytesMessage(t *testing.T) {
 }
 
 func TestBytesMessageCodec(t *testing.T) {
-	data := []byte{}
+	data := []byte(`some bytes...`)
 	m := NewBytesMessage(data)
 	n := Bytes{}
 	err := n.Decode(msgs.TextRepresentation, m.Encode(msgs.TextRepresentation))
@@ -36,7 +36,7 @@ func TestBytesMessageCodec(t *testing.T) {
 }
 
 func TestBytesMessageCodecPanic(t *testing.T) {
-	data := []byte{}
+	data := []byte(`some text...`)
 	m := NewBytesMessage(data)
 	n := Bytes{}
 	func() {

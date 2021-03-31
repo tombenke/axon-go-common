@@ -26,26 +26,21 @@ func (msg *Bytes) GetType() string {
 }
 
 // Encode returns with the `Bytes` message content in a representation format selected by `representation`
-func (msg *Bytes) Encode(representation msgs.Representation) (results []byte) {
-	switch representation {
-	case msgs.TextRepresentation:
-	case msgs.OctetstreamRepresentation:
-		return results
-	default:
+func (msg *Bytes) Encode(representation msgs.Representation) []byte {
+	if representation != msgs.TextRepresentation &&
+		representation != msgs.OctetstreamRepresentation {
 		panic(fmt.Errorf("Encode error: unknown representational format '%s'", representation))
 	}
-	return results
+	return []byte(*msg)
 }
 
 // Decode parses the `content` using the selected `representation` format
 func (msg *Bytes) Decode(representation msgs.Representation, content []byte) error {
-	switch representation {
-	case msgs.TextRepresentation:
-	case msgs.OctetstreamRepresentation:
-		return nil
-	default:
+	if representation != msgs.TextRepresentation &&
+		representation != msgs.OctetstreamRepresentation {
 		panic(fmt.Errorf("Decode error: unknown representational format '%s'", representation))
 	}
+	*msg = content
 	return nil
 }
 
@@ -70,7 +65,6 @@ func (msg *Bytes) ParseJSON(jsonBytes []byte) error {
 		return nil
 	}
 	return json.Unmarshal(jsonBytes, msg)
-	//return json.Unmarshal([]byte("\""+string(jsonBytes)+"\""), msg)
 }
 
 // NewBytesMessage returns with a new `Bytes` message. The header will contain the current time in `Nanoseconds` precision.
