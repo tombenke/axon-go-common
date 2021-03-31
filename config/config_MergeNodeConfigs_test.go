@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -66,6 +65,30 @@ var cliExtOutputs = Outputs{
 		Type:           "base/Bool",
 		Representation: "application/json",
 		Channel:        "another-channel",
+	}},
+}
+
+var cliOverwriteInputs = Inputs{
+	In{IO: IO{
+		Name:           "reference-water-level", // Overwrite this port
+		Type:           "base/Bytes",
+		Representation: "text/Plain",
+		Channel:        "",
+	}, Default: ""},
+	In{IO: IO{
+		Name:           "water-level",
+		Type:           "base/Float64",
+		Representation: "application/json",
+		Channel:        "well-water-buffer-tank-level",
+	}, Default: ""},
+}
+
+var cliOverwriteOutputs = Outputs{
+	Out{IO: IO{
+		Name:           "water-level-state", // Overwrite this port
+		Type:           "base/Bytes",
+		Representation: "application/octet-stream",
+		Channel:        "buffer-water-tank-upper-level-state",
 	}},
 }
 
@@ -143,5 +166,13 @@ func TestMergeNodeConfigs_noExt_Mod_Mod2(t *testing.T) {
 	resulting, err := MergeNodeConfigs(hardCoded, cli)
 	assert.Nil(t, err)
 	assert.Equal(t, cli, resulting)
-	fmt.Println("resulting", resulting)
+}
+
+func TestMergeNodeConfigs_overwrite(t *testing.T) {
+	hardCoded := makeNode("test-node", "test-node-type", true, true, true, true, hcInputs, hcOutputs)
+	cli := makeNode("test-node", "test-node-type", true, true, true, true, cliOverwriteInputs, cliOverwriteOutputs)
+
+	resulting, err := MergeNodeConfigs(hardCoded, cli)
+	assert.Nil(t, err)
+	assert.Equal(t, cli, resulting)
 }

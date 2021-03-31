@@ -5,6 +5,12 @@ import (
 	"testing"
 )
 
+func TestGetDefaultNode(t *testing.T) {
+	node := GetDefaultNode()
+	assert.Equal(t, Inputs{}, node.Ports.Inputs)
+	assert.Equal(t, Outputs{}, node.Ports.Outputs)
+}
+
 func TestAddInputPort(t *testing.T) {
 	node := GetDefaultNode()
 	assert.Equal(t, 0, len(node.Ports.Inputs))

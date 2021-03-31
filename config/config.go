@@ -147,6 +147,8 @@ func GetDefaultNode() Node {
 				Extend: true,
 				Modify: true,
 			},
+			Inputs:  Inputs{},
+			Outputs: Outputs{},
 		},
 		Orchestration: Orchestration{
 			Presence:        true,

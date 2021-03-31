@@ -9,9 +9,14 @@ func (i *Inputs) String() string {
 	return ""
 }
 
-// Set appends a new In CLI parameter to the inputs array
+// Set appends a new In CLI parameter to the inputs array, or overwrites if yet exists with the same name
 func (i *Inputs) Set(value string) error {
-	*i = append(*i, parseIn(value))
+	newIn := parseIn(value)
+	if in, found := (*i).FindByName(newIn.Name); found {
+		*in = newIn
+		return nil
+	}
+	*i = append(*i, newIn)
 	return nil
 }
 
@@ -52,7 +57,12 @@ func (o *Outputs) String() string {
 
 // Set appends a new out CLI parameter to the outputs array
 func (o *Outputs) Set(value string) error {
-	*o = append(*o, parseOut(value))
+	newOut := parseOut(value)
+	if out, found := (*o).FindByName(newOut.Name); found {
+		*out = newOut
+		return nil
+	}
+	*o = append(*o, newOut)
 	return nil
 }
 

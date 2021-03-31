@@ -17,6 +17,9 @@ const (
 	// AvroRepresentation `application/x-protobuf` Representation enum value
 	ProtobufRepresentation Representation = "application/x-protobuf"
 
+	// OctetstreamRepresentation `application/octet-stream` Representation enum value
+	OctetstreamRepresentation Representation = "application/octet-stream"
+
 	// TextRepresentation `text/plain` Representation enum value
 	TextRepresentation Representation = "text/plain"
 

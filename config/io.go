@@ -26,7 +26,8 @@ type In struct {
 // WouldModify returns true if the modifiable properties of the `in` input
 // differs from the corresponding properties of `mod`, otherwise returns false.
 func (in In) WouldModify(mod In) bool {
-	if in.Representation == mod.Representation &&
+	if in.Type == mod.Type &&
+		in.Representation == mod.Representation &&
 		in.Channel == mod.Channel &&
 		in.Default == mod.Default {
 
@@ -38,6 +39,7 @@ func (in In) WouldModify(mod In) bool {
 
 // ModifyWith replaces the configurable properties of the `in` input with the properties of `mod`
 func (in *In) ModifyWith(mod In) {
+	(*in).Type = mod.Type
 	(*in).Representation = mod.Representation
 	(*in).Channel = mod.Channel
 	(*in).Default = mod.Default
@@ -84,7 +86,8 @@ type Out struct {
 // WouldModify returns true if the modifiable properties of the `out` output
 // differs from the corresponding properties of `mod`, otherwise returns false.
 func (out Out) WouldModify(mod Out) bool {
-	if out.Representation == mod.Representation &&
+	if out.Type == mod.Type &&
+		out.Representation == mod.Representation &&
 		out.Channel == mod.Channel {
 
 		return false
@@ -95,6 +98,7 @@ func (out Out) WouldModify(mod Out) bool {
 
 // ModifyWith replaces the configurable properties of the `out` input with the properties of `mod`
 func (out *Out) ModifyWith(mod Out) {
+	(*out).Type = mod.Type
 	(*out).Representation = mod.Representation
 	(*out).Channel = mod.Channel
 }

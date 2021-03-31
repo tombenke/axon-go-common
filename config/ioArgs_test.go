@@ -90,3 +90,33 @@ func TestParseOutArgs(t *testing.T) {
 		)
 	}
 }
+
+func TestSetIn(t *testing.T) {
+	inputs := &Inputs{}
+	inputs.Set("name|channel|base/Bool|application/json|true")
+	inputs.Set("name2|channel2|base/Any|application/json|{}")
+	inputs.Set("name|channelx|base/Bytes|text/plain|") // Overwrites 'name' !!!!
+	inputs.Set(`name3|channel3|base/Float|application/json|{"Body":{"Data":42.}}`)
+
+	expected := Inputs{
+		In{IO{"name", "base/Bytes", "text/plain", "channelx"}, ""},
+		In{IO{"name2", "base/Any", "application/json", "channel2"}, "{}"},
+		In{IO{"name3", "base/Float", "application/json", "channel3"}, `{"Body":{"Data":42.}}`},
+	}
+	assert.Equal(t, expected, *inputs)
+}
+
+func TestSetOut(t *testing.T) {
+	outputs := &Outputs{}
+	outputs.Set("name|channel|base/Bool|application/json")
+	outputs.Set("name2|channel2|base/Any|application/json")
+	outputs.Set("name|channelx|base/Bytes|text/plain") // Overwrites 'name' !!!!
+	outputs.Set("name3|channel3|base/Float|application/json")
+
+	expected := Outputs{
+		Out{IO{"name", "base/Bytes", "text/plain", "channelx"}},
+		Out{IO{"name2", "base/Any", "application/json", "channel2"}},
+		Out{IO{"name3", "base/Float", "application/json", "channel3"}},
+	}
+	assert.Equal(t, expected, *outputs)
+}

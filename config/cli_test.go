@@ -41,8 +41,8 @@ func TestParseCliArgsWithDefaults(t *testing.T) {
 	assert.Equal(t, defaultMessagingURL, c.Messenger.Urls)
 	assert.Equal(t, defaultMessagingUserCreds, c.Messenger.UserCreds)
 	assert.Equal(t, "ns", c.Precision)
-	assert.Equal(t, *new(Inputs), c.Ports.Inputs)
-	assert.Equal(t, *new(Outputs), c.Ports.Outputs)
+	assert.Equal(t, Inputs{}, c.Ports.Inputs)
+	assert.Equal(t, Outputs{}, c.Ports.Outputs)
 }
 
 func TestConfigWithArgs(t *testing.T) {

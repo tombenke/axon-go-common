@@ -30,6 +30,9 @@ func TestBytesMessageCodec(t *testing.T) {
 	err := n.Decode(msgs.TextRepresentation, m.Encode(msgs.TextRepresentation))
 	assert.Nil(t, err)
 	assert.Equal(t, m, &n)
+	err = n.Decode(msgs.OctetstreamRepresentation, m.Encode(msgs.OctetstreamRepresentation))
+	assert.Nil(t, err)
+	assert.Equal(t, m, &n)
 }
 
 func TestBytesMessageCodecPanic(t *testing.T) {

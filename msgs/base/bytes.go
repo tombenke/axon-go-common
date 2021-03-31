@@ -29,6 +29,7 @@ func (msg *Bytes) GetType() string {
 func (msg *Bytes) Encode(representation msgs.Representation) (results []byte) {
 	switch representation {
 	case msgs.TextRepresentation:
+	case msgs.OctetstreamRepresentation:
 		return results
 	default:
 		panic(fmt.Errorf("Encode error: unknown representational format '%s'", representation))
@@ -40,10 +41,12 @@ func (msg *Bytes) Encode(representation msgs.Representation) (results []byte) {
 func (msg *Bytes) Decode(representation msgs.Representation, content []byte) error {
 	switch representation {
 	case msgs.TextRepresentation:
+	case msgs.OctetstreamRepresentation:
 		return nil
 	default:
 		panic(fmt.Errorf("Decode error: unknown representational format '%s'", representation))
 	}
+	return nil
 }
 
 // String returns with the `Bytes` message content in JSON format string
