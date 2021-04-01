@@ -2,7 +2,6 @@
 package inputs
 
 import (
-	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/tombenke/axon-go-common/config"
 	"github.com/tombenke/axon-go-common/io"
@@ -80,7 +79,6 @@ func asyncSetupInputPorts(inputsCfg config.Inputs, logger *logrus.Logger) *io.In
 
 	// Create input ports
 	inputs := io.NewInputs(inputsCfg)
-	fmt.Printf("asyncSetupInputPorts() inputs: %v\n", *inputs)
 
 	// Set every input ports' message to its default
 	for p := range inputs.Map {

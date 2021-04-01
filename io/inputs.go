@@ -15,7 +15,7 @@ type Input struct {
 
 // Inputs holds a map of the the input ports of the actor. The key is the name of the port.
 type Inputs struct {
-	RW  sync.Mutex
+	RW  sync.RWMutex
 	Map map[string]Input
 }
 
@@ -24,12 +24,8 @@ type Inputs struct {
 // GetMessage returns the last message received via the input port selected by the `name` parameter
 func (inputs *Inputs) GetMessage(name string) msgs.Message {
 
-	(*inputs).RW.Lock()
-	fmt.Printf("GetMessage Lock %v ==============\n", (*inputs).RW)
-	defer func() {
-		(*inputs).RW.Unlock()
-		fmt.Printf("GetMessage Unlock %v ==============\n", (*inputs).RW)
-	}()
+	(*inputs).RW.RLock()
+	defer (*inputs).RW.RUnlock()
 
 	if input, ok := inputs.Map[name]; ok {
 		return input.Message
@@ -41,11 +37,7 @@ func (inputs *Inputs) GetMessage(name string) msgs.Message {
 // SetMessage sets the message that received via the input channel to the port selected by the `name` parameter
 func (inputs *Inputs) SetMessage(name string, inMsg msgs.Message) {
 	(*inputs).RW.Lock()
-	fmt.Printf("SetMessage Lock %v ==============\n", (*inputs).RW)
-	defer func() {
-		(*inputs).RW.Unlock()
-		fmt.Printf("SetMessage Unlock %v ==============\n", (*inputs).RW)
-	}()
+	defer (*inputs).RW.Unlock()
 
 	if _, ok := (*inputs).Map[name]; !ok {
 		errorMessage := fmt.Sprintf("'%s' port does not exist, so can not set message to it.", name)
@@ -74,7 +66,7 @@ func (inputs *Inputs) SetMessage(name string, inMsg msgs.Message) {
 // NewInputs creates a new Inputs map based on the config parameters
 func NewInputs(inputsCfg config.Inputs) *Inputs {
 	inputs := Inputs{
-		RW:  *new(sync.Mutex),
+		RW:  *new(sync.RWMutex),
 		Map: make(map[string]Input),
 	}
 
@@ -82,35 +74,46 @@ func NewInputs(inputsCfg config.Inputs) *Inputs {
 	defer inputs.RW.Unlock()
 
 	for _, in := range inputsCfg {
-		Name := in.IO.Name
-		Type := in.IO.Type
-		Repr := msgs.Representation(in.IO.Representation)
-		Chan := in.IO.Channel
-
-		// Validates if the message-type is registered
-		if !msgs.IsMessageTypeRegistered(Type) {
-			errorString := fmt.Sprintf("The '%s' message type has not been registered!", Type)
-			panic(errorString)
-		}
-
-		// Validates if the representation format is supported
-		if !msgs.DoesMessageTypeImplementsRepresentation(Type, Repr) {
-			errorString := fmt.Sprintf("'%s' message-type does not implement codec for '%s' representation format", Type, Repr)
-			panic(errorString)
-		}
-
-		// Determines the default value
-		// In case the default value is empty, then use the original one defined by the message-type itself
-		Default := msgs.GetDefaultMessageByType(Type)
-		if in.Default != "" {
-			// The default config value is not empty, so it should be a valid message in JSON format
-			err := Default.Decode(msgs.JSONRepresentation, []byte(in.Default))
-			if err != nil {
-				panic(err)
-			}
-		}
-
-		inputs.Map[Name] = Input{IO: IO{Name: Name, Type: Type, Representation: Repr, Channel: Chan}, DefaultMessage: Default}
+		inputs.Map[in.Name] = NewInput(in.IO.Name, in.IO.Type, msgs.Representation(in.IO.Representation), in.IO.Channel, NewDefaultMessage(in.Type, in.Default))
 	}
 	return &inputs
+}
+
+// NewInput create a new Input message instance according to the arguments
+func NewInput(Name string, Type string, Repr msgs.Representation, Chan string, Default msgs.Message) Input {
+
+	// Validates if the message-type is registered
+	if !msgs.IsMessageTypeRegistered(Type) {
+		errorString := fmt.Sprintf("The '%s' message type has not been registered!", Type)
+		panic(errorString)
+	}
+
+	// Validates if the representation format is supported
+	if !msgs.DoesMessageTypeImplementsRepresentation(Type, Repr) {
+		errorString := fmt.Sprintf("'%s' message-type does not implement codec for '%s' representation format", Type, Repr)
+		panic(errorString)
+	}
+
+	return Input{IO: IO{Name: Name, Type: Type, Representation: Repr, Channel: Chan, Message: Default}, DefaultMessage: Default}
+}
+
+// NewDefaultMessage create a new default message of `Type` from the `newDefault` string value.
+// If `newDefault` is empty, then creates the built-in default message defined to the specific Type.
+func NewDefaultMessage(Type string, newDefault string) msgs.Message {
+	// Determines the default value
+	// In case the default value is empty, then use the original one defined by the message-type itself
+	Default := msgs.GetDefaultMessageByType(Type)
+	if newDefault != "" {
+		// The default config value is not empty, so it should be a valid message in JSON format
+		err := Default.Decode(msgs.JSONRepresentation, []byte(newDefault))
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if Default == nil {
+		panic("Wrong NewDefaultMessage")
+	}
+
+	return Default
 }

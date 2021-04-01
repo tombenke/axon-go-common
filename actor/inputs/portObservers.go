@@ -4,6 +4,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/tombenke/axon-go-common/io"
 	"github.com/tombenke/axon-go-common/messenger"
+	"github.com/tombenke/axon-go-common/msgs"
 	"sync"
 )
 
@@ -45,10 +46,12 @@ func newPortObserver(input io.Input, inputsMuxCh chan io.Input, doneCh chan bool
 
 			case inputMsg := <-inMsgCh:
 				logger.Debugf("Receiver's '%s' port observer received message", input.Name)
-				if err := input.Message.Decode(input.Representation, inputMsg); err != nil {
+				newInput := io.NewInput(input.Name, input.Type, input.Representation, input.Channel, input.DefaultMessage)
+				newInput.Message = msgs.GetDefaultMessageByType(input.Type)
+				if err := newInput.Message.Decode(input.Representation, inputMsg); err != nil {
 					panic(err)
 				}
-				inputsMuxCh <- input
+				inputsMuxCh <- newInput
 				logger.Debugf("Receiver's '%s' port observer sent message to inputMuxCh channel", input.Name)
 			}
 		}
