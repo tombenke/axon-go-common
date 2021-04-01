@@ -10,7 +10,7 @@ import (
 // It holds the actual messages arrived through the `Inputs` ports
 // as well as the messages will be emitted through the `Outputs` ports.
 type Context struct {
-	Inputs  io.Inputs
+	Inputs  *io.Inputs
 	Outputs io.Outputs
 	Logger  *logrus.Logger
 }
@@ -26,7 +26,7 @@ func (ctx Context) SetOutputMessage(name string, outMsg msgs.Message) {
 }
 
 // NewContext creates a new processor context object and returns with it
-func NewContext(logger *logrus.Logger, inputs io.Inputs, outputs io.Outputs) Context {
+func NewContext(logger *logrus.Logger, inputs *io.Inputs, outputs io.Outputs) Context {
 	context := Context{Inputs: inputs, Outputs: outputs, Logger: logger}
 
 	return context

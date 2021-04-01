@@ -9,13 +9,16 @@ import (
 )
 
 func TestRegister(t *testing.T) {
+	var mu sync.Mutex
 	gsdCbCalled := false
 
 	wg := sync.WaitGroup{}
 
 	// Register the callback handler
 	Register(&wg, func(s os.Signal) {
+		mu.Lock()
 		gsdCbCalled = true
+		mu.Unlock()
 	})
 
 	// Sent TERM signal, then wait for termination
@@ -24,5 +27,7 @@ func TestRegister(t *testing.T) {
 	wg.Wait()
 
 	// Checks if callback was called
+	mu.Lock()
 	assert.True(t, gsdCbCalled)
+	mu.Unlock()
 }

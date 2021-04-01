@@ -13,7 +13,7 @@ import (
 // Processor is the implementation of the core process that executes the so called `procFun` function with a context.
 // The context provides an interface to the `procFun` to access to the messages of the input ports,
 // as well as to access to the output ports that will emit the results of the computation.
-func StartProcessor(procFun func(Context) error, outputsCfg config.Outputs, doneCh chan bool, appWg *sync.WaitGroup, inputsCh chan io.Inputs, logger *logrus.Logger) (chan io.Outputs, chan bool) {
+func StartProcessor(procFun func(Context) error, outputsCfg config.Outputs, doneCh chan bool, appWg *sync.WaitGroup, inputsCh chan *io.Inputs, logger *logrus.Logger) (chan io.Outputs, chan bool) {
 	outputsCh := make(chan io.Outputs)
 	procStoppedCh := make(chan bool)
 
@@ -44,7 +44,7 @@ func StartProcessor(procFun func(Context) error, outputsCfg config.Outputs, done
 	return outputsCh, procStoppedCh
 }
 
-func processInputs(inputs io.Inputs, outputs io.Outputs, procFun func(Context) error, outputsCh chan io.Outputs, logger *logrus.Logger) {
+func processInputs(inputs *io.Inputs, outputs io.Outputs, procFun func(Context) error, outputsCh chan io.Outputs, logger *logrus.Logger) {
 	context := NewContext(logger, inputs, outputs)
 
 	logger.Debugf("Processor calls processor-function")

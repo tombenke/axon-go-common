@@ -9,10 +9,10 @@ import (
 
 // startInPortsObservers starts one message observer for every port,
 // and returns with the number of observers started.
-func startInPortsObservers(inputs io.Inputs, inputsMuxCh chan io.Input, doneCh chan bool, wg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) {
-	for p := range inputs {
-		if inputs[p].Channel != "" {
-			newPortObserver(inputs[p], inputsMuxCh, doneCh, wg, m, logger)
+func startInPortsObservers(inputs *io.Inputs, inputsMuxCh chan io.Input, doneCh chan bool, wg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) {
+	for p := range (*inputs).Map {
+		if (*inputs).Map[p].Channel != "" {
+			newPortObserver((*inputs).Map[p], inputsMuxCh, doneCh, wg, m, logger)
 		}
 	}
 }

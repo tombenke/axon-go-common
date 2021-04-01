@@ -35,6 +35,10 @@ var checklistAsync = []string{
 
 var logger = logrus.New()
 
+func init() {
+	logger.SetLevel(logrus.DebugLevel)
+}
+
 var messengerCfg = messenger.Config{
 	Urls:       "localhost:4222",
 	UserCreds:  "",
@@ -95,7 +99,7 @@ var asyncInputs = at.TestCaseMsgs{
 // startMockProcessor starts a mock processor process that observes the `inputsCh` channel.
 // If arrives an inputs data package, checks it content and reports the result to the Checklist process.
 // Mock Processor will shut down if it receives a message via the `doneCh` channel.
-func startMockProcessor(inputsCh chan io.Inputs, reportCh chan string, doneCh chan bool, wg *sync.WaitGroup, logger *logrus.Logger) chan bool {
+func startMockProcessor(inputsCh chan *io.Inputs, reportCh chan string, doneCh chan bool, wg *sync.WaitGroup, logger *logrus.Logger) chan bool {
 	procStoppedCh := make(chan bool)
 
 	wg.Add(1)
@@ -129,11 +133,11 @@ func sendInputMessages(inputsCfg config.Inputs, inputs at.TestCaseMsgs, reportCh
 
 	logger.Infof("Mock Actor start publishing messages to input channels.")
 	inputPorts := io.NewInputs(inputsCfg)
-	for p := range inputPorts {
+	for p := range inputPorts.Map {
 		portName := p
 		message := inputs[p]
-		channel := inputPorts[portName].Channel
-		representation := inputPorts[portName].Representation
+		channel := inputPorts.Map[portName].Channel
+		representation := inputPorts.Map[portName].Representation
 		logger.Infof("Mock Actor publishes message to '%s' channel.", channel)
 		//logger.Infof("Publish '%v' format message '%v' to '%s' channel.", representation, message, channel)
 		if err := m.Publish(channel, message.Encode(representation)); err != nil {

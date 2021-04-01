@@ -132,13 +132,13 @@ func ProcessorFun(ctx Context) error {
 	return nil
 }
 
-func StartMockReceiver(triggerCh chan bool, reportCh chan string, doneCh chan bool, wg *sync.WaitGroup, logger *logrus.Logger) (chan io.Inputs, chan bool) {
+func StartMockReceiver(triggerCh chan bool, reportCh chan string, doneCh chan bool, wg *sync.WaitGroup, logger *logrus.Logger) (chan *io.Inputs, chan bool) {
 	logger.Infof("Mock Receiver started.")
-	inputsCh := make(chan io.Inputs)
+	inputsCh := make(chan *io.Inputs)
 	mockRcvStoppedCh := make(chan bool)
 	defer close(mockRcvStoppedCh)
 	inputs := io.NewInputs(inputsCfg)
-	SetInputs(&inputs, testCase.Inputs)
+	SetInputs(inputs, testCase.Inputs)
 
 	wg.Add(1)
 	go func() {

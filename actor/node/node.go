@@ -31,7 +31,7 @@ type Node struct {
 	doneOutputsCh   chan bool
 
 	// Declare the channels for communication among the componens
-	inputsCh  chan io.Inputs
+	inputsCh  chan *io.Inputs
 	outputsCh chan io.Outputs
 
 	// Declare the channels through which the components notify that they have stopped
@@ -150,11 +150,11 @@ func (n Node) Shutdown() {
 }
 
 // Next Injects the `inputs` messages into the inputs channel, like it were received by the input ports.
-func (n Node) Next(inputs io.Inputs) {
+func (n Node) Next(inputs *io.Inputs) {
 	log.Logger.Debugf("Node.Next() is called\n")
 	n.inputsCh <- inputs
 }
 
-func (n Node) NewInputs() io.Inputs {
+func (n Node) NewInputs() *io.Inputs {
 	return io.NewInputs(n.config.Ports.Inputs)
 }

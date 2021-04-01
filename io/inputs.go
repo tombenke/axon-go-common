@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/tombenke/axon-go-common/config"
 	"github.com/tombenke/axon-go-common/msgs"
+	"sync"
 )
 
 // Input holds the data of an input port of the actor
@@ -13,12 +14,24 @@ type Input struct {
 }
 
 // Inputs holds a map of the the input ports of the actor. The key is the name of the port.
-type Inputs map[string]Input
+type Inputs struct {
+	RW  sync.Mutex
+	Map map[string]Input
+}
+
+////type Inputs map[string]Input
 
 // GetMessage returns the last message received via the input port selected by the `name` parameter
-func (inputs Inputs) GetMessage(name string) msgs.Message {
+func (inputs *Inputs) GetMessage(name string) msgs.Message {
 
-	if input, ok := inputs[name]; ok {
+	(*inputs).RW.Lock()
+	fmt.Printf("GetMessage Lock %v ==============\n", (*inputs).RW)
+	defer func() {
+		(*inputs).RW.Unlock()
+		fmt.Printf("GetMessage Unlock %v ==============\n", (*inputs).RW)
+	}()
+
+	if input, ok := inputs.Map[name]; ok {
 		return input.Message
 	}
 	errorMessage := fmt.Sprintf("There is no input port named to '%s'", name)
@@ -27,33 +40,47 @@ func (inputs Inputs) GetMessage(name string) msgs.Message {
 
 // SetMessage sets the message that received via the input channel to the port selected by the `name` parameter
 func (inputs *Inputs) SetMessage(name string, inMsg msgs.Message) {
-	if _, ok := (*inputs)[name]; !ok {
+	(*inputs).RW.Lock()
+	fmt.Printf("SetMessage Lock %v ==============\n", (*inputs).RW)
+	defer func() {
+		(*inputs).RW.Unlock()
+		fmt.Printf("SetMessage Unlock %v ==============\n", (*inputs).RW)
+	}()
+
+	if _, ok := (*inputs).Map[name]; !ok {
 		errorMessage := fmt.Sprintf("'%s' port does not exist, so can not set message to it.", name)
 		panic(errorMessage)
 	}
 
 	inMsgType := inMsg.GetType()
-	portMsgType := string((*inputs)[name].Type)
+	portMsgType := string((*inputs).Map[name].Type)
 	if inMsgType != portMsgType {
 		errorMessage := fmt.Sprintf("'%s' message-type mismatch to port's '%s' message-type.", inMsgType, portMsgType)
 		panic(errorMessage)
 	}
 
-	(*inputs)[name] = Input{
+	(*inputs).Map[name] = Input{
 		IO: IO{
 			Name:           name,
 			Type:           inMsgType,
-			Representation: (*inputs)[name].Representation,
-			Channel:        (*inputs)[name].Channel,
+			Representation: (*inputs).Map[name].Representation,
+			Channel:        (*inputs).Map[name].Channel,
 			Message:        inMsg,
 		},
-		DefaultMessage: (*inputs)[name].DefaultMessage,
+		DefaultMessage: (*inputs).Map[name].DefaultMessage,
 	}
 }
 
 // NewInputs creates a new Inputs map based on the config parameters
-func NewInputs(inputsCfg config.Inputs) Inputs {
-	inputs := make(Inputs)
+func NewInputs(inputsCfg config.Inputs) *Inputs {
+	inputs := Inputs{
+		RW:  *new(sync.Mutex),
+		Map: make(map[string]Input),
+	}
+
+	inputs.RW.Lock()
+	defer inputs.RW.Unlock()
+
 	for _, in := range inputsCfg {
 		Name := in.IO.Name
 		Type := in.IO.Type
@@ -83,7 +110,7 @@ func NewInputs(inputsCfg config.Inputs) Inputs {
 			}
 		}
 
-		inputs[Name] = Input{IO: IO{Name: Name, Type: Type, Representation: Repr, Channel: Chan}, DefaultMessage: Default}
+		inputs.Map[Name] = Input{IO: IO{Name: Name, Type: Type, Representation: Repr, Channel: Chan}, DefaultMessage: Default}
 	}
-	return inputs
+	return &inputs
 }

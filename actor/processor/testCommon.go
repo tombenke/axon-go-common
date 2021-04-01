@@ -49,7 +49,7 @@ func SetInputs(inputs *io.Inputs, inputMsgs at.TestCaseMsgs) {
 }
 
 // SetupPorts Initializes the input and output ports according to their configurations.
-func SetupPorts(inputsCfg config.Inputs, outputsCfg config.Outputs) (io.Inputs, io.Outputs) {
+func SetupPorts(inputsCfg config.Inputs, outputsCfg config.Outputs) (*io.Inputs, io.Outputs) {
 	// Setup the input ports
 	inputs := io.NewInputs(inputsCfg)
 
@@ -64,7 +64,7 @@ func SetupPorts(inputsCfg config.Inputs, outputsCfg config.Outputs) (io.Inputs, 
 // and by the `tc` test case. It also provides a Logger.
 func SetupContext(tc at.TestCase, inputsCfg config.Inputs, outputsCfg config.Outputs) Context {
 	inputs, outputs := SetupPorts(inputsCfg, outputsCfg)
-	SetInputs(&inputs, tc.Inputs)
+	SetInputs(inputs, tc.Inputs)
 	var logger logrus.Logger
 	context := NewContext(&logger, inputs, outputs)
 	return context

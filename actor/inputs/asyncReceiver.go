@@ -2,6 +2,7 @@
 package inputs
 
 import (
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/tombenke/axon-go-common/config"
 	"github.com/tombenke/axon-go-common/io"
@@ -15,11 +16,11 @@ import (
 // and the subject to receive from.
 // This function starts the receiver routine as a standalone process,
 // and returns a channel that the process uses to forward the incoming inputs.
-func AsyncReceiver(inputsCfg config.Inputs, resetCh chan bool, doneCh chan bool, appWg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) (chan io.Inputs, chan bool) {
+func AsyncReceiver(inputsCfg config.Inputs, resetCh chan bool, doneCh chan bool, appWg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) (chan *io.Inputs, chan bool) {
 	receiverStoppedCh := make(chan bool)
 
 	// Setup communication channel with the processor
-	inputsCh := make(chan io.Inputs)
+	inputsCh := make(chan *io.Inputs)
 
 	appWg.Add(1)
 	go func() {
@@ -61,7 +62,7 @@ func AsyncReceiver(inputsCfg config.Inputs, resetCh chan bool, doneCh chan bool,
 
 			case input := <-inputsMuxCh:
 				logger.Debugf("Receiver got message to '%s' port", input.Name)
-				inputs.SetMessage(input.Name, input.Message)
+				(*inputs).SetMessage(input.Name, input.Message)
 				// Immediately forward to the processor if not in synchronized mode
 				inputsCh <- inputs
 				logger.Debugf("Receiver sent 'inputs' to 'inputsCh'")
@@ -73,17 +74,18 @@ func AsyncReceiver(inputsCfg config.Inputs, resetCh chan bool, doneCh chan bool,
 }
 
 // asyncSetupInputPorts creates inputs ports, and initilizes them with their default messages
-func asyncSetupInputPorts(inputsCfg config.Inputs, logger *logrus.Logger) io.Inputs {
+func asyncSetupInputPorts(inputsCfg config.Inputs, logger *logrus.Logger) *io.Inputs {
 
 	logger.Debugf("Receiver sets up input ports")
 
 	// Create input ports
 	inputs := io.NewInputs(inputsCfg)
+	fmt.Printf("asyncSetupInputPorts() inputs: %v\n", *inputs)
 
 	// Set every input ports' message to its default
-	for p := range inputs {
-		defaultMessage := inputs[p].DefaultMessage
-		(&inputs).SetMessage(p, defaultMessage)
+	for p := range inputs.Map {
+		defaultMessage := (*inputs).Map[p].DefaultMessage
+		inputs.SetMessage(p, defaultMessage)
 	}
 
 	return inputs

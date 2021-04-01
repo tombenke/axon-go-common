@@ -17,11 +17,11 @@ import (
 // and the subject to receive from.
 // This function starts the receiver routine as a standalone process,
 // and returns a channel that the process uses to forward the incoming inputs.
-func SyncReceiver(inputsCfg config.Inputs, resetCh chan bool, doneCh chan bool, appWg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) (chan io.Inputs, chan bool) {
+func SyncReceiver(inputsCfg config.Inputs, resetCh chan bool, doneCh chan bool, appWg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) (chan *io.Inputs, chan bool) {
 	receiverStoppedCh := make(chan bool)
 
 	// Setup communication channel with the processor
-	inputsCh := make(chan io.Inputs)
+	inputsCh := make(chan *io.Inputs)
 
 	appWg.Add(1)
 	go func() {
@@ -94,7 +94,7 @@ func SyncReceiver(inputsCfg config.Inputs, resetCh chan bool, doneCh chan bool, 
 }
 
 // setupInputPorts creates inputs ports, and initilizes them with their default messages
-func syncSetupInputPorts(inputsCfg config.Inputs, logger *logrus.Logger) io.Inputs {
+func syncSetupInputPorts(inputsCfg config.Inputs, logger *logrus.Logger) *io.Inputs {
 
 	logger.Debugf("Receiver sets up input ports")
 
@@ -118,9 +118,9 @@ func syncSetupInputPorts(inputsCfg config.Inputs, logger *logrus.Logger) io.Inpu
 	inputs := io.NewInputs(inputsCfg)
 
 	// Set every input ports' message to its default
-	for p := range inputs {
-		defaultMessage := inputs[p].DefaultMessage
-		(&inputs).SetMessage(p, defaultMessage)
+	for p := range inputs.Map {
+		defaultMessage := (*inputs).Map[p].DefaultMessage
+		inputs.SetMessage(p, defaultMessage)
 	}
 
 	return inputs
