@@ -96,17 +96,17 @@ func TestStatus(t *testing.T) {
 	wg := sync.WaitGroup{}
 
 	// Create a trigger channel to start the test
-	triggerCh := make(chan bool)
+	triggerCh := make(chan interface{})
 
 	// Start the processes of the test-bed
-	doneChkCh := make(chan bool)
+	doneChkCh := make(chan interface{})
 	reportCh, testCompletedCh, checklistStoppedCh := at.ChecklistProcess(checklist, doneChkCh, &wg, logger)
 
-	doneOrcCh := make(chan bool)
+	doneOrcCh := make(chan interface{})
 	orcStoppedCh := startMockOrchestrator(t, reportCh, triggerCh, doneOrcCh, &wg, logger, m, expectedStatusReportBody)
 
 	// Start the status process
-	doneStatusCh := make(chan bool)
+	doneStatusCh := make(chan interface{})
 	statusStartedCh, statusStoppedCh := Status(testNode, doneStatusCh, &wg, m, logger)
 
 	// Wait until all components have been successfully started
@@ -147,10 +147,10 @@ func TestStatus(t *testing.T) {
 // then waits for receiving the status response.
 // The Mock Orchestrator reports every relevant event to the Checklist process.
 // Mock Orchestrator will shut down if it receives a message via the `doneCh` channel.
-func startMockOrchestrator(t *testing.T, reportCh chan string, triggerCh chan bool, doneCh chan bool, wg *sync.WaitGroup, logger *logrus.Logger, m messenger.Messenger, expectedStatusReportBody orchestra.StatusReportBody) chan bool {
+func startMockOrchestrator(t *testing.T, reportCh chan string, triggerCh chan interface{}, doneCh chan interface{}, wg *sync.WaitGroup, logger *logrus.Logger, m messenger.Messenger, expectedStatusReportBody orchestra.StatusReportBody) chan interface{} {
 	statusReportCh := make(chan []byte)
 	statusReportSubs := m.ChanSubscribe("status-report", statusReportCh)
-	orcStoppedCh := make(chan bool)
+	orcStoppedCh := make(chan interface{})
 
 	wg.Add(1)
 	go func() {

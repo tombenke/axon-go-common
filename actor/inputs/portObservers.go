@@ -10,7 +10,7 @@ import (
 
 // startInPortsObservers starts one message observer for every port,
 // and returns with the number of observers started.
-func startInPortsObservers(inputs *io.Inputs, inputsMuxCh chan io.Input, doneCh chan bool, wg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) {
+func startInPortsObservers(inputs *io.Inputs, inputsMuxCh chan io.Input, doneCh chan interface{}, wg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) {
 	for p := range (*inputs).Map {
 		if (*inputs).Map[p].Channel != "" {
 			startedCh := newPortObserver((*inputs).Map[p], inputsMuxCh, doneCh, wg, m, logger)
@@ -22,7 +22,7 @@ func startInPortsObservers(inputs *io.Inputs, inputsMuxCh chan io.Input, doneCh 
 // newPortObserver subscribes to an input channel with a go routine that observes the incoming messages.
 // When a message arrives through the channel, the go routine forwards that through the `inCh` towards the aggregator.
 // The newPortObserver creates and returns with the `inCh` channel that the aggregator can consume.
-func newPortObserver(input io.Input, inputsMuxCh chan io.Input, doneCh chan bool, wg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) chan interface{} {
+func newPortObserver(input io.Input, inputsMuxCh chan io.Input, doneCh chan interface{}, wg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) chan interface{} {
 	inMsgCh := make(chan []byte)
 	logger.Debugf("Receiver's '%s' port observer subscribe to '%s' channel", input.Name, input.Channel)
 	inMsgSubs := m.ChanSubscribe(input.Channel, inMsgCh)

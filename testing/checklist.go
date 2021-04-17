@@ -9,9 +9,9 @@ import (
 // and checks the test was complete.
 // It creates and returns with two channels, one channel for collecting test results,
 // and another one that it will close, when the test is finished.
-func ChecklistProcess(expected []string, doneCh chan bool, wg *sync.WaitGroup, logger *logrus.Logger) (chan string, chan bool, chan bool) {
-	checklistStoppedCh := make(chan bool)
-	testCompletedCh := make(chan bool)
+func ChecklistProcess(expected []string, doneCh chan interface{}, wg *sync.WaitGroup, logger *logrus.Logger) (chan string, chan interface{}, chan interface{}) {
+	checklistStoppedCh := make(chan interface{})
+	testCompletedCh := make(chan interface{})
 	reportCh := make(chan string)
 	reported := make(map[string]bool)
 

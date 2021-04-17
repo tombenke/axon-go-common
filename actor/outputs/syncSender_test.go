@@ -21,23 +21,23 @@ func TestSyncSender(t *testing.T) {
 	wg := sync.WaitGroup{}
 
 	// Create a trigger channel to start the test
-	triggerCh := make(chan bool)
+	triggerCh := make(chan interface{})
 
 	// Start the processes of the test-bed
-	doneChkCh := make(chan bool)
+	doneChkCh := make(chan interface{})
 	reportCh, testCompletedCh, chkStoppedCh := at.ChecklistProcess(syncChecklist, doneChkCh, &wg, logger)
 
-	doneOrchCh := make(chan bool)
+	doneOrchCh := make(chan interface{})
 	orchStoppedCh := startMockOrchestrator(t, reportCh, doneOrchCh, &wg, logger, m)
 
-	doneRcvCh := make(chan bool)
+	doneRcvCh := make(chan interface{})
 	rcvStoppedCh := startMockMessageReceivers(getOutputsData(), reportCh, doneRcvCh, &wg, logger, m)
 
-	doneProcCh := make(chan bool)
+	doneProcCh := make(chan interface{})
 	outputsCh, procStoppedCh := startMockProcessor(triggerCh, reportCh, doneProcCh, &wg, logger)
 
 	// Start the sender process
-	doneSndCh := make(chan bool)
+	doneSndCh := make(chan interface{})
 	startedCh, senderStoppedCh := SyncSender(actorName, outputsCh, doneSndCh, &wg, m, logger)
 	<-startedCh
 
@@ -88,14 +88,14 @@ func TestSyncSender(t *testing.T) {
 // then sends a trigger message to the SyncSender process via the `send-outputs` messaging channel.
 // The Mock Orchestrator reports every relevant event to the Checklist process.
 // Mock Orchestrator will shut down if it receives a message via the `doneCh` channel.
-func startMockOrchestrator(t *testing.T, reportCh chan string, doneCh chan bool, wg *sync.WaitGroup, logger *logrus.Logger, m messenger.Messenger) chan bool {
+func startMockOrchestrator(t *testing.T, reportCh chan string, doneCh chan interface{}, wg *sync.WaitGroup, logger *logrus.Logger, m messenger.Messenger) chan interface{} {
 	processingCompletedCh := make(chan []byte)
 	processingCompletedSubs := m.ChanSubscribe("processing-completed", processingCompletedCh)
 
 	sendingCompletedCh := make(chan []byte)
 	sendingCompletedSubs := m.ChanSubscribe("sending-completed", sendingCompletedCh)
 
-	orchStoppedCh := make(chan bool)
+	orchStoppedCh := make(chan interface{})
 
 	wg.Add(1)
 	go func() {

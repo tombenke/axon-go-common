@@ -22,10 +22,10 @@ func TestSyncReceiverStartStop(t *testing.T) {
 	wg := sync.WaitGroup{}
 
 	// Create a channel for the RESET
-	resetCh := make(chan bool)
+	resetCh := make(chan interface{})
 
 	// Create a channel to shut down the processes if needed
-	doneCh := make(chan bool)
+	doneCh := make(chan interface{})
 
 	// Start the receiver process
 	startedCh, _, _ := SyncReceiver(syncInputsCfg, resetCh, doneCh, &wg, m, logger)
@@ -51,22 +51,22 @@ func TestSyncReceiverDefaultsOnly(t *testing.T) {
 	wg := sync.WaitGroup{}
 
 	// Start the processes of the test-bed
-	doneCheckCh := make(chan bool)
+	doneCheckCh := make(chan interface{})
 	reportCh, testCompletedCh, chkStoppedCh := at.ChecklistProcess(checklistDefaultsOnly, doneCheckCh, &wg, logger)
 
 	// Create a trigger channel to start the test
-	doneOrchCh := make(chan bool)
+	doneOrchCh := make(chan interface{})
 	triggerOrchCh, orchStoppedCh := startMockOrchestrator(reportCh, doneOrchCh, &wg, m, logger)
 
 	// Create a channel for the RESET
-	resetCh := make(chan bool)
+	resetCh := make(chan interface{})
 
 	// Start the receiver process
-	doneRcvCh := make(chan bool)
+	doneRcvCh := make(chan interface{})
 	startedCh, inputsCh, rcvStoppedCh := SyncReceiver(syncInputsCfg, resetCh, doneRcvCh, &wg, m, logger)
 	<-startedCh
 
-	doneProcCh := make(chan bool)
+	doneProcCh := make(chan interface{})
 	procStoppedCh := startMockProcessor(inputsCh, reportCh, doneProcCh, &wg, logger)
 
 	// Start testing
@@ -117,22 +117,22 @@ func TestSyncReceiverInputs(t *testing.T) {
 	wg := sync.WaitGroup{}
 
 	// Start the processes of the test-bed
-	doneCheckCh := make(chan bool)
+	doneCheckCh := make(chan interface{})
 	reportCh, testCompletedCh, chkStoppedCh := at.ChecklistProcess(checklistFull, doneCheckCh, &wg, logger)
 
 	// Create a trigger channel to start the test
-	doneOrcCh := make(chan bool)
+	doneOrcCh := make(chan interface{})
 	triggerOrchCh, orchStoppedCh := startMockOrchestrator(reportCh, doneOrcCh, &wg, m, logger)
 
 	// Create a channel for the RESET
-	resetCh := make(chan bool)
+	resetCh := make(chan interface{})
 
 	// Start the receiver process
-	doneRcvCh := make(chan bool)
+	doneRcvCh := make(chan interface{})
 	startedCh, inputsCh, rcvStoppedCh := SyncReceiver(syncInputsCfg, resetCh, doneRcvCh, &wg, m, logger)
 	<-startedCh
 
-	doneProcCh := make(chan bool)
+	doneProcCh := make(chan interface{})
 	procStoppedCh := startMockProcessor(inputsCh, reportCh, doneProcCh, &wg, logger)
 
 	// Start testing
@@ -185,9 +185,9 @@ func TestSyncReceiverInputsBulk(t *testing.T) {
 // Orchestrator waits for a trigger to send `receive-and-process` message to the input aggregator.
 // The Mock Orchestrator reports every relevant event to the Checklist process.
 // Mock Orchestrator will shut down if it receives a message via the `doneCh` channel.
-func startMockOrchestrator(reportCh chan string, doneCh chan bool, wg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) (chan bool, chan bool) {
-	triggerOrchCh := make(chan bool)
-	orchStoppedCh := make(chan bool)
+func startMockOrchestrator(reportCh chan string, doneCh chan interface{}, wg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) (chan interface{}, chan interface{}) {
+	triggerOrchCh := make(chan interface{})
+	orchStoppedCh := make(chan interface{})
 
 	wg.Add(1)
 	go func() {

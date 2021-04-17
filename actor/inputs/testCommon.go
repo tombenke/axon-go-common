@@ -99,8 +99,8 @@ var asyncInputs = at.TestCaseMsgs{
 // startMockProcessor starts a mock processor process that observes the `inputsCh` channel.
 // If arrives an inputs data package, checks it content and reports the result to the Checklist process.
 // Mock Processor will shut down if it receives a message via the `doneCh` channel.
-func startMockProcessor(inputsCh chan *io.Inputs, reportCh chan string, doneCh chan bool, wg *sync.WaitGroup, logger *logrus.Logger) chan bool {
-	procStoppedCh := make(chan bool)
+func startMockProcessor(inputsCh chan *io.Inputs, reportCh chan string, doneCh chan interface{}, wg *sync.WaitGroup, logger *logrus.Logger) chan interface{} {
+	procStoppedCh := make(chan interface{})
 
 	wg.Add(1)
 	go func() {

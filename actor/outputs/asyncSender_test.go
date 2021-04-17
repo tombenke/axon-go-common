@@ -17,21 +17,21 @@ func TestAsyncSender(t *testing.T) {
 	wg := sync.WaitGroup{}
 
 	// Create a trigger channel to start the test
-	triggerCh := make(chan bool)
+	triggerCh := make(chan interface{})
 
 	// Start the processes of the test-bed
-	doneChkCh := make(chan bool)
+	doneChkCh := make(chan interface{})
 	reportCh, testCompletedCh, chkStoppedCh := at.ChecklistProcess(asyncChecklist, doneChkCh, &wg, logger)
 
-	doneRcvCh := make(chan bool)
+	doneRcvCh := make(chan interface{})
 	rcvStoppedCh := startMockMessageReceivers(getOutputsData(), reportCh, doneRcvCh, &wg, logger, m)
 	time.Sleep(200 * time.Millisecond)
 
-	doneProcCh := make(chan bool)
+	doneProcCh := make(chan interface{})
 	outputsCh, procStoppedCh := startMockProcessor(triggerCh, reportCh, doneProcCh, &wg, logger)
 
 	// Start the sender process
-	doneSndCh := make(chan bool)
+	doneSndCh := make(chan interface{})
 	startedCh, senderStoppedCh := AsyncSender(actorName, outputsCh, doneSndCh, &wg, m, logger)
 	<-startedCh
 

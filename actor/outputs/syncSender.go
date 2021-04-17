@@ -14,10 +14,10 @@ import (
 // the corresponding topics identified by the port.
 // The outputs structures hold every details about the ports, the message itself, and the subject to send.
 // This function runs as a standalone process, so it should be started as a go function.
-func SyncSender(actorName string, outputsCh chan io.Outputs, doneCh chan bool, wg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) (chan bool, chan bool) {
+func SyncSender(actorName string, outputsCh chan io.Outputs, doneCh chan interface{}, wg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) (chan interface{}, chan interface{}) {
 	var outputs io.Outputs
-	senderStoppedCh := make(chan bool)
-	startedCh := make(chan bool)
+	senderStoppedCh := make(chan interface{})
+	startedCh := make(chan interface{})
 
 	wg.Add(1)
 	go func() {

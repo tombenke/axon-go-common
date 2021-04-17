@@ -22,23 +22,23 @@ type Node struct {
 	messenger messenger.Messenger
 	name      string
 	procFun   func(processor.Context) error
-	doneCh    chan bool
-	resetCh   chan bool
+	doneCh    chan interface{}
+	resetCh   chan interface{}
 
-	doneStatusCh    chan bool
-	doneInputsRcvCh chan bool
-	doneProcessorCh chan bool
-	doneOutputsCh   chan bool
+	doneStatusCh    chan interface{}
+	doneInputsRcvCh chan interface{}
+	doneProcessorCh chan interface{}
+	doneOutputsCh   chan interface{}
 
 	// Declare the channels for communication among the componens
 	inputsCh  chan *io.Inputs
 	outputsCh chan io.Outputs
 
 	// Declare the channels through which the components notify that they have stopped
-	inputsRcvStoppedCh chan bool
-	processorStoppedCh chan bool
-	outputsStoppedCh   chan bool
-	statusStoppedCh    chan bool
+	inputsRcvStoppedCh chan interface{}
+	processorStoppedCh chan interface{}
+	outputsStoppedCh   chan interface{}
+	statusStoppedCh    chan interface{}
 	wg                 *sync.WaitGroup
 }
 
@@ -49,14 +49,14 @@ func NewNode(config config.Node, procFun func(processor.Context) error) Node {
 		config:  config,
 		name:    config.Name,
 		procFun: procFun,
-		doneCh:  make(chan bool),
-		resetCh: make(chan bool),
+		doneCh:  make(chan interface{}),
+		resetCh: make(chan interface{}),
 
 		// Create channels to control the shut down of the components
-		doneStatusCh:    make(chan bool),
-		doneInputsRcvCh: make(chan bool),
-		doneProcessorCh: make(chan bool),
-		doneOutputsCh:   make(chan bool),
+		doneStatusCh:    make(chan interface{}),
+		doneInputsRcvCh: make(chan interface{}),
+		doneProcessorCh: make(chan interface{}),
+		doneOutputsCh:   make(chan interface{}),
 		wg:              &sync.WaitGroup{},
 	}
 
@@ -73,7 +73,7 @@ func NewNode(config config.Node, procFun func(processor.Context) error) Node {
 
 	log.Logger.Debugf("Start '%s' actor node's internal components", node.config.Name)
 	// Start the status component to communicate with the orchestrator
-	var startedCh chan bool
+	var startedCh chan interface{}
 	startedCh, node.statusStoppedCh = status.Status(node.config, node.doneStatusCh, node.wg, node.messenger, log.Logger)
 	<-startedCh
 

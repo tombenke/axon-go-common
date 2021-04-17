@@ -64,21 +64,21 @@ func TestStartProcessor(t *testing.T) {
 	wg := sync.WaitGroup{}
 
 	// Create a trigger channel to start the test
-	triggerCh := make(chan bool)
+	triggerCh := make(chan interface{})
 
 	// Start the processes of the test-bed
-	doneCheckCh := make(chan bool)
+	doneCheckCh := make(chan interface{})
 	reportCh, testCompletedCh, checklistStoppedCh := at.ChecklistProcess(checklist, doneCheckCh, &wg, logger)
 
 	// Create a channel to feed inputs to the Processor
-	doneRcvCh := make(chan bool)
+	doneRcvCh := make(chan interface{})
 	inputsCh, mockRcvStoppedCh := StartMockReceiver(triggerCh, reportCh, doneRcvCh, &wg, logger)
 
-	doneProcCh := make(chan bool)
+	doneProcCh := make(chan interface{})
 	startedCh, outputsCh, procStoppedCh := StartProcessor(ProcessorFun, outputsCfg, doneProcCh, &wg, inputsCh, logger)
 	<-startedCh
 
-	doneSndCh := make(chan bool)
+	doneSndCh := make(chan interface{})
 	mockSndStoppedCh := StartMockSender(t, outputsCh, reportCh, doneSndCh, &wg, logger)
 
 	// Start testing
@@ -133,10 +133,10 @@ func ProcessorFun(ctx Context) error {
 	return nil
 }
 
-func StartMockReceiver(triggerCh chan bool, reportCh chan string, doneCh chan bool, wg *sync.WaitGroup, logger *logrus.Logger) (chan *io.Inputs, chan bool) {
+func StartMockReceiver(triggerCh chan interface{}, reportCh chan string, doneCh chan interface{}, wg *sync.WaitGroup, logger *logrus.Logger) (chan *io.Inputs, chan interface{}) {
 	logger.Infof("Mock Receiver started.")
 	inputsCh := make(chan *io.Inputs)
-	mockRcvStoppedCh := make(chan bool)
+	mockRcvStoppedCh := make(chan interface{})
 	defer close(mockRcvStoppedCh)
 	inputs := io.NewInputs(inputsCfg)
 	SetInputs(inputs, testCase.Inputs)
@@ -164,9 +164,9 @@ func StartMockReceiver(triggerCh chan bool, reportCh chan string, doneCh chan bo
 	return inputsCh, mockRcvStoppedCh
 }
 
-func StartMockSender(t *testing.T, outputsCh chan io.Outputs, reportCh chan string, doneCh chan bool, wg *sync.WaitGroup, logger *logrus.Logger) chan bool {
+func StartMockSender(t *testing.T, outputsCh chan io.Outputs, reportCh chan string, doneCh chan interface{}, wg *sync.WaitGroup, logger *logrus.Logger) chan interface{} {
 	logger.Infof("Mock Sender started.")
-	mockSndStoppedCh := make(chan bool)
+	mockSndStoppedCh := make(chan interface{})
 
 	wg.Add(1)
 	go func() {

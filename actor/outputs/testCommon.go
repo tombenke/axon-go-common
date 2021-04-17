@@ -79,9 +79,9 @@ func getOutputsData() io.Outputs {
 // MockProcessor waits for a trigger message via the `trigger` channel
 // then sends `io.Outputs` test data package through the `outputs` channel to the SyncSender.
 // MockProcessor will shut down if it receives a message via the `doneCh` channel.
-func startMockProcessor(triggerCh chan bool, reportCh chan string, doneCh chan bool, wg *sync.WaitGroup, logger *logrus.Logger) (chan io.Outputs, chan bool) {
+func startMockProcessor(triggerCh chan interface{}, reportCh chan string, doneCh chan interface{}, wg *sync.WaitGroup, logger *logrus.Logger) (chan io.Outputs, chan interface{}) {
 	outputsCh := make(chan io.Outputs)
-	procStoppedCh := make(chan bool)
+	procStoppedCh := make(chan interface{})
 
 	wg.Add(1)
 	go func() {
@@ -112,8 +112,8 @@ func startMockProcessor(triggerCh chan bool, reportCh chan string, doneCh chan b
 // startMockMessageReceivers starts a process to each output message to send,
 // and checks if the messages are really sent to the expected channel.
 // Returns the number processes forked, that is actually the number of output ports.
-func startMockMessageReceivers(outputs io.Outputs, reportCh chan string, doneCh chan bool, wg *sync.WaitGroup, logger *logrus.Logger, m messenger.Messenger) chan bool {
-	rcvStoppedCh := make(chan bool)
+func startMockMessageReceivers(outputs io.Outputs, reportCh chan string, doneCh chan interface{}, wg *sync.WaitGroup, logger *logrus.Logger, m messenger.Messenger) chan interface{} {
+	rcvStoppedCh := make(chan interface{})
 
 	wg.Add(1)
 	go func() {
@@ -123,7 +123,7 @@ func startMockMessageReceivers(outputs io.Outputs, reportCh chan string, doneCh 
 
 		// Create wait-group for the channel observer sub-processes
 		rcvWg := sync.WaitGroup{}
-		rcvDoneCh := make(chan bool)
+		rcvDoneCh := make(chan interface{})
 		startSubReceivers(outputs, reportCh, rcvDoneCh, &rcvWg, logger, m)
 
 		// Waits until receives a done signal
@@ -140,7 +140,7 @@ func startMockMessageReceivers(outputs io.Outputs, reportCh chan string, doneCh 
 	return rcvStoppedCh
 }
 
-func startSubReceivers(outputs io.Outputs, reportCh chan string, doneCh chan bool, wg *sync.WaitGroup, logger *logrus.Logger, m messenger.Messenger) int {
+func startSubReceivers(outputs io.Outputs, reportCh chan string, doneCh chan interface{}, wg *sync.WaitGroup, logger *logrus.Logger, m messenger.Messenger) int {
 
 	for o := range outputs {
 		wg.Add(1)

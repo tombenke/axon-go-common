@@ -13,11 +13,11 @@ import (
 // Status receives status request messages from the orchestrator application,
 // sends responses to these requests, forwarding the actual status of the actor.
 // This function runs as a standalone process, so it should be started as a go function.
-func Status(nodeConfig config.Node, doneCh chan bool, wg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) (chan bool, chan bool) {
+func Status(nodeConfig config.Node, doneCh chan interface{}, wg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) (chan interface{}, chan interface{}) {
 	statusRequestCh := make(chan []byte)
 	statusRequestSubs := m.ChanSubscribe(nodeConfig.Orchestration.Channels.StatusRequest, statusRequestCh)
-	statusStoppedCh := make(chan bool)
-	statusStartedCh := make(chan bool)
+	statusStoppedCh := make(chan interface{})
+	statusStartedCh := make(chan interface{})
 
 	wg.Add(1)
 	go func() {

@@ -18,10 +18,10 @@ func TestAsyncReceiverStartStop(t *testing.T) {
 	wg := sync.WaitGroup{}
 
 	// Create a channel for the RESET
-	resetCh := make(chan bool)
+	resetCh := make(chan interface{})
 
 	// Create a channel to shut down the processes if needed
-	doneCh := make(chan bool)
+	doneCh := make(chan interface{})
 
 	// Start the receiver process
 	startedCh, _, _ := AsyncReceiver(asyncInputsCfg, resetCh, doneCh, &wg, m, logger)
@@ -46,18 +46,18 @@ func TestAsyncReceiverInputs(t *testing.T) {
 	wg := sync.WaitGroup{}
 
 	// Start the processes of the test-bed
-	doneCheckCh := make(chan bool)
+	doneCheckCh := make(chan interface{})
 	reportCh, testCompletedCh, chkStoppedCh := at.ChecklistProcess(checklistAsync, doneCheckCh, &wg, logger)
 
 	// Create a channel for the RESET
-	resetCh := make(chan bool)
+	resetCh := make(chan interface{})
 
 	// Start the receiver process
-	doneRcvCh := make(chan bool)
+	doneRcvCh := make(chan interface{})
 	startedCh, inputsCh, rcvStoppedCh := AsyncReceiver(asyncInputsCfg, resetCh, doneRcvCh, &wg, m, logger)
 	<-startedCh
 
-	doneProcCh := make(chan bool)
+	doneProcCh := make(chan interface{})
 	procStoppedCh := startMockProcessor(inputsCh, reportCh, doneProcCh, &wg, logger)
 
 	// Give chance for observers to start before send messages through external messaging mw.
