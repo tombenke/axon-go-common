@@ -17,8 +17,9 @@ import (
 // and the subject to receive from.
 // This function starts the receiver routine as a standalone process,
 // and returns a channel that the process uses to forward the incoming inputs.
-func SyncReceiver(inputsCfg config.Inputs, resetCh chan bool, doneCh chan bool, appWg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) (chan *io.Inputs, chan bool) {
+func SyncReceiver(inputsCfg config.Inputs, resetCh chan bool, doneCh chan bool, appWg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) (chan bool, chan *io.Inputs, chan bool) {
 	receiverStoppedCh := make(chan bool)
+	startedCh := make(chan bool)
 
 	// Setup communication channel with the processor
 	inputsCh := make(chan *io.Inputs)
@@ -26,6 +27,7 @@ func SyncReceiver(inputsCfg config.Inputs, resetCh chan bool, doneCh chan bool, 
 	appWg.Add(1)
 	go func() {
 		logger.Debugf("Receiver started in sync mode.")
+		close(startedCh)
 		defer logger.Debugf("Receiver stopped.")
 		defer close(inputsCh)
 		defer close(receiverStoppedCh)
@@ -90,7 +92,7 @@ func SyncReceiver(inputsCfg config.Inputs, resetCh chan bool, doneCh chan bool, 
 		}
 	}()
 
-	return inputsCh, receiverStoppedCh
+	return startedCh, inputsCh, receiverStoppedCh
 }
 
 // setupInputPorts creates inputs ports, and initilizes them with their default messages

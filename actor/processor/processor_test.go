@@ -75,7 +75,8 @@ func TestStartProcessor(t *testing.T) {
 	inputsCh, mockRcvStoppedCh := StartMockReceiver(triggerCh, reportCh, doneRcvCh, &wg, logger)
 
 	doneProcCh := make(chan bool)
-	outputsCh, procStoppedCh := StartProcessor(ProcessorFun, outputsCfg, doneProcCh, &wg, inputsCh, logger)
+	startedCh, outputsCh, procStoppedCh := StartProcessor(ProcessorFun, outputsCfg, doneProcCh, &wg, inputsCh, logger)
+	<-startedCh
 
 	doneSndCh := make(chan bool)
 	mockSndStoppedCh := StartMockSender(t, outputsCh, reportCh, doneSndCh, &wg, logger)

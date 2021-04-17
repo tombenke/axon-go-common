@@ -107,7 +107,10 @@ func TestStatus(t *testing.T) {
 
 	// Start the status process
 	doneStatusCh := make(chan bool)
-	statusStoppedCh := Status(testNode, doneStatusCh, &wg, m, logger)
+	statusStartedCh, statusStoppedCh := Status(testNode, doneStatusCh, &wg, m, logger)
+
+	// Wait until all components have been successfully started
+	<-statusStartedCh
 
 	// Start testing
 	triggerCh <- true

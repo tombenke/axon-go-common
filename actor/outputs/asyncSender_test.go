@@ -32,7 +32,8 @@ func TestAsyncSender(t *testing.T) {
 
 	// Start the sender process
 	doneSndCh := make(chan bool)
-	senderStoppedCh := AsyncSender(actorName, outputsCh, doneSndCh, &wg, m, logger)
+	startedCh, senderStoppedCh := AsyncSender(actorName, outputsCh, doneSndCh, &wg, m, logger)
+	<-startedCh
 
 	// Start testing
 	logger.Infof("Send trigger to start testing")

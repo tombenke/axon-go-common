@@ -14,14 +14,17 @@ import (
 // the corresponding topics identified by the port.
 // The outputs structures hold every details about the ports, the message itself, and the subject to send.
 // This function runs as a standalone process, so it should be started as a go function.
-func SyncSender(actorName string, outputsCh chan io.Outputs, doneCh chan bool, wg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) chan bool {
+func SyncSender(actorName string, outputsCh chan io.Outputs, doneCh chan bool, wg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) (chan bool, chan bool) {
 	var outputs io.Outputs
 	senderStoppedCh := make(chan bool)
+	startedCh := make(chan bool)
 
 	wg.Add(1)
 	go func() {
 		sendResultsCh := make(chan []byte)
 		sendResultsSubs := m.ChanSubscribe("send-results", sendResultsCh)
+		logger.Debugf("Sender started in sync mode.")
+		close(startedCh)
 
 		defer func() {
 			if err := sendResultsSubs.Unsubscribe(); err != nil {
@@ -51,8 +54,7 @@ func SyncSender(actorName string, outputsCh chan io.Outputs, doneCh chan bool, w
 		}
 	}()
 
-	logger.Debugf("Sender started in sync mode.")
-	return senderStoppedCh
+	return startedCh, senderStoppedCh
 }
 
 // sendProcessingCompleted sends a message to the orchestrator about that

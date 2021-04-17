@@ -24,7 +24,8 @@ func TestAsyncReceiverStartStop(t *testing.T) {
 	doneCh := make(chan bool)
 
 	// Start the receiver process
-	AsyncReceiver(asyncInputsCfg, resetCh, doneCh, &wg, m, logger)
+	startedCh, _, _ := AsyncReceiver(asyncInputsCfg, resetCh, doneCh, &wg, m, logger)
+	<-startedCh
 
 	// Wait until test is completed, then stop the processes
 	close(doneCh)
@@ -53,7 +54,8 @@ func TestAsyncReceiverInputs(t *testing.T) {
 
 	// Start the receiver process
 	doneRcvCh := make(chan bool)
-	inputsCh, rcvStoppedCh := AsyncReceiver(asyncInputsCfg, resetCh, doneRcvCh, &wg, m, logger)
+	startedCh, inputsCh, rcvStoppedCh := AsyncReceiver(asyncInputsCfg, resetCh, doneRcvCh, &wg, m, logger)
+	<-startedCh
 
 	doneProcCh := make(chan bool)
 	procStoppedCh := startMockProcessor(inputsCh, reportCh, doneProcCh, &wg, logger)

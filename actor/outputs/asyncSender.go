@@ -12,12 +12,15 @@ import (
 // the corresponding topics identified by the port.
 // The outputs structures hold every details about the ports, the message itself, and the subject to send.
 // This function runs as a standalone process, so it should be started as a go function.
-func AsyncSender(actorName string, outputsCh chan io.Outputs, doneCh chan bool, wg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) chan bool {
+func AsyncSender(actorName string, outputsCh chan io.Outputs, doneCh chan bool, wg *sync.WaitGroup, m messenger.Messenger, logger *logrus.Logger) (chan bool, chan bool) {
 	var outputs io.Outputs
 	senderStoppedCh := make(chan bool)
+	startedCh := make(chan bool)
 
 	wg.Add(1)
 	go func() {
+		logger.Debugf("Sender started in async mode.")
+		close(startedCh)
 		defer logger.Debugf("Sender stopped")
 		defer close(senderStoppedCh)
 		defer wg.Done()
@@ -36,8 +39,7 @@ func AsyncSender(actorName string, outputsCh chan io.Outputs, doneCh chan bool, 
 		}
 	}()
 
-	logger.Debugf("Sender started in async mode.")
-	return senderStoppedCh
+	return startedCh, senderStoppedCh
 }
 
 func asyncSendOutputs(actorName string, outputs io.Outputs, m messenger.Messenger, logger *logrus.Logger) {

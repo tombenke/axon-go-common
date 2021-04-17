@@ -28,7 +28,8 @@ func TestSyncReceiverStartStop(t *testing.T) {
 	doneCh := make(chan bool)
 
 	// Start the receiver process
-	SyncReceiver(syncInputsCfg, resetCh, doneCh, &wg, m, logger)
+	startedCh, _, _ := SyncReceiver(syncInputsCfg, resetCh, doneCh, &wg, m, logger)
+	<-startedCh
 
 	// Wait until test is completed, then stop the processes
 	close(doneCh)
@@ -62,7 +63,8 @@ func TestSyncReceiverDefaultsOnly(t *testing.T) {
 
 	// Start the receiver process
 	doneRcvCh := make(chan bool)
-	inputsCh, rcvStoppedCh := SyncReceiver(syncInputsCfg, resetCh, doneRcvCh, &wg, m, logger)
+	startedCh, inputsCh, rcvStoppedCh := SyncReceiver(syncInputsCfg, resetCh, doneRcvCh, &wg, m, logger)
+	<-startedCh
 
 	doneProcCh := make(chan bool)
 	procStoppedCh := startMockProcessor(inputsCh, reportCh, doneProcCh, &wg, logger)
@@ -127,7 +129,8 @@ func TestSyncReceiverInputs(t *testing.T) {
 
 	// Start the receiver process
 	doneRcvCh := make(chan bool)
-	inputsCh, rcvStoppedCh := SyncReceiver(syncInputsCfg, resetCh, doneRcvCh, &wg, m, logger)
+	startedCh, inputsCh, rcvStoppedCh := SyncReceiver(syncInputsCfg, resetCh, doneRcvCh, &wg, m, logger)
+	<-startedCh
 
 	doneProcCh := make(chan bool)
 	procStoppedCh := startMockProcessor(inputsCh, reportCh, doneProcCh, &wg, logger)

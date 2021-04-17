@@ -73,25 +73,34 @@ func NewNode(config config.Node, procFun func(processor.Context) error) Node {
 
 	log.Logger.Debugf("Start '%s' actor node's internal components", node.config.Name)
 	// Start the status component to communicate with the orchestrator
-	node.statusStoppedCh = status.Status(node.config, node.doneStatusCh, node.wg, node.messenger, log.Logger)
+	var startedCh chan bool
+	startedCh, node.statusStoppedCh = status.Status(node.config, node.doneStatusCh, node.wg, node.messenger, log.Logger)
+	<-startedCh
 
 	// Start the core components of the Node
 	if node.config.Orchestration.Synchronization {
 		// Start the core components in synchronous mode
-		node.inputsCh, node.inputsRcvStoppedCh = inputs.SyncReceiver(node.config.Ports.Inputs, node.resetCh, node.doneInputsRcvCh, node.wg, node.messenger, log.Logger)
-		node.outputsCh, node.processorStoppedCh = processor.StartProcessor(node.procFun, node.config.Ports.Outputs, node.doneProcessorCh, node.wg, node.inputsCh, log.Logger)
-		node.outputsStoppedCh = outputs.SyncSender(node.name, node.outputsCh, node.doneOutputsCh, node.wg, node.messenger, log.Logger)
+		startedCh, node.inputsCh, node.inputsRcvStoppedCh = inputs.SyncReceiver(node.config.Ports.Inputs, node.resetCh, node.doneInputsRcvCh, node.wg, node.messenger, log.Logger)
+		<-startedCh
+		startedCh, node.outputsCh, node.processorStoppedCh = processor.StartProcessor(node.procFun, node.config.Ports.Outputs, node.doneProcessorCh, node.wg, node.inputsCh, log.Logger)
+		<-startedCh
+		startedCh, node.outputsStoppedCh = outputs.SyncSender(node.name, node.outputsCh, node.doneOutputsCh, node.wg, node.messenger, log.Logger)
+		<-startedCh
 	} else {
 		// Start the core components in asynchronous mode
-		node.inputsCh, node.inputsRcvStoppedCh = inputs.AsyncReceiver(node.config.Ports.Inputs, node.resetCh, node.doneInputsRcvCh, node.wg, node.messenger, log.Logger)
-		node.outputsCh, node.processorStoppedCh = processor.StartProcessor(node.procFun, node.config.Ports.Outputs, node.doneProcessorCh, node.wg, node.inputsCh, log.Logger)
-		node.outputsStoppedCh = outputs.AsyncSender(node.name, node.outputsCh, node.doneOutputsCh, node.wg, node.messenger, log.Logger)
+		startedCh, node.inputsCh, node.inputsRcvStoppedCh = inputs.AsyncReceiver(node.config.Ports.Inputs, node.resetCh, node.doneInputsRcvCh, node.wg, node.messenger, log.Logger)
+		<-startedCh
+		startedCh, node.outputsCh, node.processorStoppedCh = processor.StartProcessor(node.procFun, node.config.Ports.Outputs, node.doneProcessorCh, node.wg, node.inputsCh, log.Logger)
+		<-startedCh
+		startedCh, node.outputsStoppedCh = outputs.AsyncSender(node.name, node.outputsCh, node.doneOutputsCh, node.wg, node.messenger, log.Logger)
+		<-startedCh
 	}
 	return node
 }
 
 // Start starts the core engine of an actor-node application
-func (n Node) Start() {
+func (n Node) Start() chan interface{} {
+	nodeStartedCh := make(chan interface{})
 
 	log.Logger.Infof("Start '%s' actor node", n.config.Name)
 
@@ -99,6 +108,7 @@ func (n Node) Start() {
 	n.wg.Add(1)
 	go func() {
 		log.Logger.Debugf("Node started.")
+		close(nodeStartedCh)
 		defer log.Logger.Debugf("Node stopped.")
 		defer n.wg.Done()
 
@@ -132,6 +142,7 @@ func (n Node) Start() {
 
 	// RESET the Node
 	n.Reset()
+	return nodeStartedCh
 }
 
 // Wait waits until the internal components of the Node terminates
