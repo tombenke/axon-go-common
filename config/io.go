@@ -2,7 +2,7 @@ package config
 
 import ()
 
-const (
+var (
 	// DefaultType is the default message-type for IO ports
 	DefaultType = "base/Any"
 	// DefaultRepresentation the default representation for IO ports
