@@ -11,7 +11,7 @@ import (
 
 // Register is an observer go routine to get notifed when termination signals arrive,
 // then call the `cb` callback function with the signal and finishes the go routine.
-func Register(wg *sync.WaitGroup, cb func(os.Signal)) {
+func Register(wg *sync.WaitGroup, cb func(os.Signal)) chan os.Signal {
 
 	// Set up channel on which to send signal notifications.
 	// We must use a buffered channel or risk missing the signal
@@ -28,4 +28,6 @@ func Register(wg *sync.WaitGroup, cb func(os.Signal)) {
 		wg.Done()
 		cb(s)
 	}()
+
+	return sigs
 }

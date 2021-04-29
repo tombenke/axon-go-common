@@ -8,22 +8,21 @@ import (
 	"testing"
 )
 
-func TestRegister(t *testing.T) {
+func TestRegisterByKill(t *testing.T) {
 	var mu sync.Mutex
 	gsdCbCalled := false
 
 	wg := sync.WaitGroup{}
 
 	// Register the callback handler
-	Register(&wg, func(s os.Signal) {
+	sigsCh := Register(&wg, func(s os.Signal) {
 		mu.Lock()
 		gsdCbCalled = true
 		mu.Unlock()
 	})
 
 	// Sent TERM signal, then wait for termination
-	err := syscall.Kill(syscall.Getpid(), syscall.SIGTERM)
-	assert.Nil(t, err)
+	sigsCh <- syscall.SIGTERM
 	wg.Wait()
 
 	// Checks if callback was called
