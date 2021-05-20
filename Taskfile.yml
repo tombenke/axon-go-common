@@ -71,17 +71,17 @@ tasks:
 
   # Docker test environment related tasks
   dc-up:
-    desc: Start OOM containers
+    desc: Start containers
     cmds:
       - docker-compose up
 
   dc-upd:
-    desc: Start OOM containers in the background
+    desc: Start containers in the background
     cmds:
       - docker-compose up -d
 
   dc-stop:
-    desc: Stop OOM containers
+    desc: Stop containers
     cmds:
       - docker-compose stop
 
@@ -96,6 +96,6 @@ tasks:
       - docker-compose logs -f
 
   dc-down:
-    desc: Clean up OOM containers
+    desc: Clean up containers
     cmds:
       - docker-compose down --volumes --remove-orphans

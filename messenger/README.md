@@ -1,7 +1,7 @@
-axon-gocommon/messenger
-=======================
+axon-go-common/messenger
+========================
 
-The communication module of the oom applications
+The communication module of the axon-go applications
 
 The main purpose of the `messenger` package is to provide an abstraction layer on top of the messaging middlewares that will be tested.
 
