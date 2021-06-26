@@ -20,6 +20,19 @@ func (m connections) Publish(subject string, msg []byte) error {
 	return nil
 }
 
+// PublishMsg `msg` message to the `msg.Subject` topic
+func (m connections) PublishMsg(msg *nats.Msg) error {
+
+	if err := m.nc.PublishMsg(msg); err != nil {
+		m.logger.Fatalf("Messenger error: '%s'", err.Error())
+		return err
+	}
+	m.nc.Flush()
+
+	m.logger.Debugf("Messenger published message to '%s'", msg.Subject)
+	return nil
+}
+
 // Subscriber structure holds the subscriptions
 // and provides methods that implements the generic Subscriber
 type Subscriber struct {
